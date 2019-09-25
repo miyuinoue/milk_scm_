@@ -1,19 +1,24 @@
 class Maker extends ArrayList <Milkstock>{
-  int production_volume = 200;
+  int order_num = 0;
   int delivery_num = 0;
+  int total_num =0;
   int maker_loss;
   int maker_waste;
 
   IntList m = new IntList();
 
-  double standard_deviation = 10;
-  int demand_forecast = 200;
-  int shipment_size = 0;
+  double standard_deviation = 0;
+  double demand_forecast = 0;
   int safty_stock_maker = 0;
+
+  int production_volume = 0;
+
+  int shipment_size = 0;
 
   int leadtime = 1;
   int ordercycle = 1;
-  
+  double safety_factor = 1.65;
+
 
   Maker(){
 
@@ -28,61 +33,75 @@ class Maker extends ArrayList <Milkstock>{
 
   void maker_first() {
     for (int i=0; i<7; i++) {
-      m.append(150);
+      m.append(0);
     }
   }
 
   void maker_appdate() {
     m.remove(0);
-    m.append(this.shipment_size);
-    shipment_size = 0;
+    m.append(order_num);
   }
+
 
   void demand_forecast(){
     int sum = 0;
     for(int i=0; i<7;i++){
       sum += m.get(i);
     }
-    demand_forecast = sum/7;
+    this.demand_forecast = (double)sum/7;
   }
+
 
   void standard_deviation(){
-    int var = 0;
+    double var = 0;
     for(int i=0; i<7; i++){
-      var += (m.get(i) - demand_forecast)*(m.get(i) - demand_forecast);
+      var += (m.get(i) - this.demand_forecast)*(m.get(i) - this.demand_forecast);
     }
-    standard_deviation = Math.sqrt(var/(7-1));
+    this.standard_deviation = Math.sqrt(var/(7-1));
   }
 
+
   void safty_stock() {
-    safty_stock_maker=(int)(1.65*standard_deviation);
+    safty_stock_maker=ceil((float)(this.safety_factor * this.standard_deviation * Math.sqrt(this.leadtime + this.ordercycle)));
   }
 
 
   //生産量q
-  int produce(int i){
-    production_volume = (leadtime + ordercycle)*demand_forecast - 1 - i + safty_stock_maker;
+  int produce(int inventories){
+    int capa = 0;
+    production_volume = ceil((float)((this.leadtime + this.ordercycle)*this.demand_forecast - inventories + safty_stock_maker));
+
+    if(production_volume < 0)production_volume = 0;
     
+    capa = maker_capacity - inventories();
+    if(capa < production_volume)production_volume = capa;
+
     return production_volume;
   }
-  
+
+
   //在庫量
   int inventories(){
     int inv = 0;
-    int size = (E - delivery_deadline + 1); //5
-    int num;
-    if(this.size() < size){
-      num = 0;
-    }else{
-      num = this.size()-size;
+
+    for(int i=0; i<this.size() ;i++){
+      if(this.get(i).size() == 0)continue;
+
+      if(this.get(i).exp_search() < 10){
+        continue;
+      }else{
+        int num = i;
+        while(num < this.size()){
+          inv += this.get(num).size();
+          num++;
+        }
+        break;
+      }
     }
 
-    for(int i=num; i<this.size(); i++){
-      inv += this.get(i).size();
-    }
-    
     return inv;
   }
+
 
 
   //前日に生産した牛乳が倉庫に入る
@@ -93,46 +112,51 @@ class Maker extends ArrayList <Milkstock>{
 
 
   //賞味期限が古い商品から順に出荷shipmentする
-  //古い順に、納品できるかの判定を行い、牛乳一つずつtrackのboxに入れる
-  void shipment(Track track , int o){
-    delivery_num = o;
-    
+    void shipment(Track track , int o){
+    order_num = o;
+    delivery_num = 0;
+    maker_loss = 0;
+
+    if(this.size() == 0){
+      maker_loss += o;
+      return;
+    }
+
     //賞味期限が10日～14日までの在庫のみ
-    int size = (E - delivery_deadline + 1); //5
-    int num;
-
-    if(this.size() < size){
-      num = 0;
-    }else{
-      num = this.size()-size;
-    }
-
     track.maker_track.add(new Track(5));
-    outside: while(o > 0){
 
-      if(this.get(num).size() == 0){
-        
-        if(num == this.size()-1){
-          maker_loss += o;
-          break outside;
+    for(int i=0; i<this.size() ;i++){
+      if(this.get(i).size() == 0)continue;
+
+      if(this.get(i).exp_search() < 10){
+        continue;
+      }else{
+        int num = i;
+        outside: while(o > 0){
+
+          if(this.get(num).size() == 0){
+            if(num == this.size()-1){
+              maker_loss += o;
+              break outside;
+            }
+            num++;
+          }
+
+          while(this.get(num).size() > 0){
+            track.maker_track.get(track.maker_track.size()-1).maker_addtrack(this.get(num).remove(0));
+            this.shipment_size++;
+            o--;
+            delivery_num++;
+
+            if(o == 0)break outside;
+
+          }
         }
-        
-        num++;
+        break;
       }
-      
-      while(this.get(num).size() > 0){
-        track.maker_track.get(track.maker_track.size()-1).maker_addtrack(this.get(num).remove(0));
-        o--;
-
-        if(o == 0)break;
-   
-      }
-
     }
 
-    for(int i=0; i<track.maker_track.get(track.maker_track.size()-1).size(); i++){
-      shipment_size += track.maker_track.get(track.maker_track.size()-1).get(i).size(); 
-    }
+    this.total_num += delivery_num;
   }
 
   //納品期限を過ぎた牛乳を廃棄する
@@ -156,9 +180,15 @@ class Maker extends ArrayList <Milkstock>{
 
       file.print("date: " + day);
       file.println("");
-      file.print("produce:" + production_volume);
+      file.print("produce: " + production_volume);
       file.println("");
-      file.print("demand:" + delivery_num);
+      file.print("order: " + order_num);
+      file.println("");
+      file.print("delivery: " + delivery_num);
+      file.println("");
+      file.print("loss:" + maker_loss);
+      file.println("");
+      file.print("total:" + this.total_num);
       file.println("");
 
 
@@ -181,7 +211,7 @@ class Maker extends ArrayList <Milkstock>{
          file.print(",");
          file.print(" ");
        }else{
-         file.print(this.get(i).search());
+         file.print(this.get(i).exp_search());
          file.print(",");
          file.print(this.get(i).get(0).production_date);
        }

@@ -106,7 +106,7 @@ class Track extends ArrayList <Milkstock>{
             file.print(",");
             file.print(" "); 
           }else{
-            file.print(maker_track.get(i).get(j).search());
+            file.print(maker_track.get(i).get(j).exp_search());
             file.print(",");
             file.print(maker_track.get(i).get(j).get(0).production_date);
           }
@@ -158,7 +158,7 @@ class Track extends ArrayList <Milkstock>{
             file.print(",");
             file.print(" "); 
           }else{
-            file.print(super_track.get(i).get(j).search());
+            file.print(super_track.get(i).get(j).exp_search());
             file.print(",");
             file.print(super_track.get(i).get(j).get(0).production_date);
           }

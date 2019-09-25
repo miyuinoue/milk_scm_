@@ -17,9 +17,9 @@ class Milk{
     this.production_date = day;
   }
   
-  int daychange(){
+  void daychange(){
     expiration--;
-    return expiration;
+    //return expiration;
   }
   
   

@@ -32,8 +32,10 @@ class Milkstock extends ArrayList <Milk>{
 
 
   //賞味期限何日かの探索
-  int search(){
+  int exp_search(){
     return this.get(0).expiration;
   }
+  
+
 
 }

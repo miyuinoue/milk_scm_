@@ -1,7 +1,11 @@
 class Superstock extends ArrayList <Milkstock>{
   int e;
-  int super_loss;
-  int stocking = 0;
+  int stock_loss;
+  int delivery;
+  int stocking1 = 0;
+  int stock_num = 0;
+  int total_num = 0;
+  
 
 
 
@@ -16,27 +20,35 @@ class Superstock extends ArrayList <Milkstock>{
     }
   }
   
-  //在庫量
+
+    //在庫量
   int inventories(){
     int inv = 0;
-   int size = (E - sales_deadline + 1); //10
-    int num;
-    if(this.size() < size){
-      num = 0;
-    }else{
-      num = this.size()-size;
+
+    for(int i=0; i<this.size() ;i++){
+      if(this.get(i).size() == 0)continue;
+
+      if(this.get(i).exp_search() < 5){
+        continue;
+      }else{
+        int num = i;
+        while(num < this.size()){
+          inv += this.get(num).size();
+          num++;
+        }
+        break;
+      }
     }
 
-    for(int i=num; i<this.size(); i++){
-      inv += this.get(i).size();
-    }
-    
     return inv;
   }
 
 
  //前日に発注した牛乳が納品される
  void delivery(Track track){
+   if(track.maker_track.size() == 0)return;
+   
+   delivery = 0;
    noexpiration = true;
    int i = track.maker_track.size()-1;
    
@@ -45,70 +57,85 @@ class Superstock extends ArrayList <Milkstock>{
      if(track.maker_track.get(i).get(j).size() == 0)continue;
 
      //納品された牛乳の賞味期限日数と同じ牛乳がstockにある場合
-     e = track.maker_track.get(i).get(j).search();
+     e = track.maker_track.get(i).get(j).exp_search();
      if(this.size() != 0){
-       for(int l=0; l<this.size(); l++){
-         if(this.get(l).size() == 0)continue;
+       for(int k=0; k<this.size(); k++){
+         if(this.get(k).size() == 0)continue;
 
-         if(e == this.get(l).search()){
+         if(e == this.get(k).exp_search()){
            noexpiration = false;
-           for(int m=0; m<track.maker_track.get(i).get(j).size(); m++){
-             this.get(l).add(track.maker_track.get(i).get(j).get(m));
+           for(int l=0; l<track.maker_track.get(i).get(j).size(); l++){
+             this.get(k).add(track.maker_track.get(i).get(j).get(l));
+             delivery++;
            }
          }
        }
      }
 
      //納品された牛乳の賞味期限日数と同じ牛乳がstockにない場合 or スーパーの倉庫が空の場合
-     if(noexpiration == true || this.size() == 0){
+     if(noexpiration == true || this.size() == 0 ){
        this.add(new Milkstock());
-       for(int n=0; n<track.maker_track.get(i).get(j).size(); n++){
-         this.get(this.size()-1).add(track.maker_track.get(i).get(j).get(n));
+       for(int m=0; m<track.maker_track.get(i).get(j).size(); m++){
+         this.get(this.size()-1).add(track.maker_track.get(i).get(j).get(m));
+         delivery++;
        }
      }
      
    }
  }
- 
- 
+
+        
+        
  //賞味期限が古い商品から順に品出しstockingする
  //古い順に、納品できるかの判定を行い、牛乳一つずつtrackのboxに入れる
  void stocking(Track track , int s){
-   stocking = s;
-   //賞味期限が5日～14日までの在庫のみ
-   int size = (E - sales_deadline + 1); //10
-    //int d = demand;
-    int num;
+   stocking1 = s;
+   stock_num = 0;
+   stock_loss = 0;
     
-    if(this.size() < size){
-      num = 0;
-    }else{
-      num = this.size()-size;
+    if(this.size() == 0){
+      stock_loss += s;
+      return;
     }
     
+       
+    //賞味期限が5日～14日までの在庫のみ
+
     track.super_track.add(new Track(10));
-    outside: while(s > 0){
- 
-      if(this.get(num).size() == 0){
-        if(num == this.size()-1){
-          super_loss += s;
-          break outside;
+    
+    for(int i=0; i<this.size() ;i++){
+      if(this.get(i).size() == 0)continue;
+      
+      if(this.get(i).exp_search() < 5){
+        continue;
+      }else{
+        int num = i;
+        outside: while(s > 0){
+          
+          if(this.get(num).size() == 0){
+            if(num == this.size()-1){
+              stock_loss += s;
+              break outside;
+            }
+            num++;
+          }
+
+          while(this.get(num).size() > 0){     
+            track.super_track.get(track.super_track.size()-1).super_addtrack(this.get(num).remove(0));
+            s--;
+            stock_num++;
+
+            if(s == 0)break outside;
+          }
         }
-        num++;
+        break;
       }
-
-      while(this.get(num).size() > 0){     
-        track.super_track.get(track.super_track.size()-1).super_addtrack(this.get(num).remove(0));
-        s--;
-
-        if(s == 0)break;
-
-      }
-
     }
+    
+    this.total_num += stock_num;
   }
-  
-  
+ 
+ 
 
  void stock_file(){
    try{
@@ -120,7 +147,13 @@ class Superstock extends ArrayList <Milkstock>{
 
      file.print("date: " + day);
      file.println("");
-     file.print("restock:" + stocking);
+     file.print("nouhinn: " + delivery);
+     file.println("");
+     file.print("shinadashi: " + stock_num);
+     file.println("");     
+     file.print("total:" + this.total_num);
+     file.println("");
+     file.print("loss: " + stock_loss);
      file.println("");
     
            
@@ -143,7 +176,7 @@ class Superstock extends ArrayList <Milkstock>{
          file.print(",");
          file.print(" ");
        }else{
-         file.print(this.get(i).search());
+         file.print(this.get(i).exp_search());
          file.print(",");
          file.print(this.get(i).get(0).production_date);
        }
