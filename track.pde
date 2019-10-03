@@ -1,6 +1,6 @@
 class Track extends ArrayList <Milkstock>{
 
- ArrayList<Track> maker_track = new ArrayList<Track>(); 
+ ArrayList<Track> maker_track = new ArrayList<Track>(); //trackの複数形tracksのクラスをつくる
  ArrayList<Track> super_track = new ArrayList<Track>(); 
  
   
@@ -74,62 +74,12 @@ class Track extends ArrayList <Milkstock>{
   }
 
 
-  void maker_list(){
-    try{
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\makertrack\\"+"makertrack"+day+".csv"), true));
-      file.println("");
 
-      file.print("[MAKERTRACK]");
-      file.println("");
-
-      file.print("date: " + day);
-      file.println("");
-      
-      file.print("number");
-      file.print(",");
-      file.print("expiration");
-      file.print(",");
-      file.print("seisanbi");
-      file.print(",");
-      file.print("size");
-      file.println(" ");
-      
-      
-      for(int i=0; i < maker_track.size(); i++){
-        for(int j=0; j < 5; j++){
-          file.print(i+1);
-          file.print(",");
-          //file.print("makertrack");
-          
-          if(maker_track.get(i).get(j).size() == 0){
-            file.print(" ");
-            file.print(",");
-            file.print(" "); 
-          }else{
-            file.print(maker_track.get(i).get(j).exp_search());
-            file.print(",");
-            file.print(maker_track.get(i).get(j).get(0).production_date);
-          }
-          
-          file.print(",");
-          file.print(maker_track.get(i).get(j).size());
-          file.println("");
-          
-        }
-      }
-
-      file.close();
-    }catch (IOException e) {
-      println(e);
-      e.printStackTrace();
-    }
-
-  }
   
   void super_list(){
     //println(day);
     try{
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\supertrack\\"+"supertrack"+day+".csv"), true));
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\supertrack\\"+"supertrack"+day+".csv")));
       file.println("");
 
       file.print("[SUPERTRACK]");

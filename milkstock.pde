@@ -19,13 +19,18 @@ class Milkstock extends ArrayList <Milk>{
 
   //num日（販売・納品期限）と賞味期限が一緒の場合は廃棄
   int waste(int num){
-    waste_size = 0;
-    for (int i=0; i<this.size(); i++) {
-      if (this.get(i).expiration == num) {
+    int waste_size = 0;
+    //int error = 100;//100でいいのか？
+    if(this.size() == 0)return 0;
+    
+    if (this.get(0).expiration == num) {      
+      for (int i=0; i<this.size(); i++) {
         this.get(i).waste_date = day;
-        waste_size ++;
       }
+      
+      waste_size = this.size();
     }
+    
     return waste_size;
   }
 
@@ -33,6 +38,9 @@ class Milkstock extends ArrayList <Milk>{
 
   //賞味期限何日かの探索
   int exp_search(){
+    int error = 100;//100でいいのか？
+    if(this.size() == 0)return error;
+    
     return this.get(0).expiration;
   }
   

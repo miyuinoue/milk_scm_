@@ -1,15 +1,17 @@
-class Customer extends Supershelf{
+class Customer{
 float iexp = 0;
 float jexp;
 float vsum;
 float probability = 0;
 float freshness = 0.661;
-float money = -0.123;
+//float freshness = 0;
+//float money = -0.123;
+float money = 0;
 //int customer = 0;
 
 ArrayList<Float> prob = new ArrayList<Float>();
 
-int price = 150;
+//int price = 150;
 
 IntList exp = new IntList();
 
@@ -17,19 +19,17 @@ Customer(){
 
   }
   
-    //日付が変わると賞味期限が-1日される
-  int c_daychange(){
+  //日付が変わると賞味期限が-1日される
+  void c_daychange(){
     customer_buy.add(new Milkstock());
-    return 100;
-    //return (int)random(100);
+    //return 200;
+    //return (int)random(200);
   }
   
   int customer_first() {
     int m;
     customer_buy.add(new Milkstock());
-    //m=(int)random(100);
     m=100;
-    //println("m"+m);
     return m;
   }
   
@@ -39,20 +39,26 @@ Customer(){
     double random_num = Math.random();
     int count =0 ;
     double prob_sum = 0;
-  
+    boolean not = true;
+
+    //count番目の牛乳を購入する 
     for(int i=0; i<prob.size();i++){
       prob_sum += prob.get(i);
       if(prob_sum >= random_num){
+        not = false;
         break;
       }
     count++;
     }
-   
+    
+    if(not == true)count = -1;  
+
     return count;
   }
   
   
-  void probability(){
+  //選択確率
+  void probability(Supershelf supershelf){
     prob.clear();
     
     if(supershelf.size() == 0)return;
@@ -66,7 +72,7 @@ Customer(){
         int num = i;
         while(num < supershelf.size()){
           for(int j=0; j<supershelf.get(num).size(); j++){
-            jexp = (float)(Math.exp(utility(supershelf.get(num).get(j).expiration, price)) / sum());
+            jexp = (float)(Math.exp(utility(supershelf.get(num).get(j).expiration, supershelf.get(num).get(j).price)) / sum(supershelf));//16 引く
             prob.add(jexp);
           }
           num++;
@@ -74,10 +80,12 @@ Customer(){
         break;
       }
     }
+    prob.add(notbuy()/sum(supershelf));//買わない効用を付け足す
+    
   }
 
   
-  float sum(){
+  float sum(Supershelf supershelf){
     vsum = 0;
     
     if(supershelf.size() == 0)return vsum;
@@ -91,26 +99,38 @@ Customer(){
         int num = i;
         while(num < supershelf.size()){
           for(int j=0; j<supershelf.get(num).size(); j++){
-            vsum += Math.exp(utility(supershelf.get(num).get(j).expiration, price));
+            vsum += Math.exp(utility(supershelf.get(num).get(j).expiration, supershelf.get(num).get(j).price));
           }
           num++;
         }
         break;
       }
     }
+    
+    vsum += notbuy();//買わない効用を付け足す
+    
     return vsum;
   }
 
   float utility(int f, int m){
-    iexp = freshness * f + money * m;
+    iexp = (freshness * f + money * m);//-16.023
     return iexp;
+  }
+  
+
+  //買わない選択肢の効用の割合
+  float notbuy(){
+    float notbuy = 0;
+    
+    return 0;
+    
   }
   
   
   
   void customer_file(){
     try{
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\customer\\"+"customer"+day+".csv"), true));
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\customer\\"+"customer"+day+".csv")));
       file.println("");
 
       file.print("[CUSTOMER]");
