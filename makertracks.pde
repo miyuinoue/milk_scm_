@@ -19,14 +19,14 @@ class MakerTracks extends ArrayList <Track>{
       file.print(",");
       
       file.print("expiration");     
-      for(int i=14; i>9; i--){
+      for(int i=14; i>(delivery_deadline-1); i--){
         file.print(",");
       }
       file.print("size");
       
       file.println(" ");
       
-      for(int i=14; i>9; i--){
+      for(int i=14; i>(delivery_deadline-1); i--){
         file.print(",");
         file.print(i);
       }
@@ -49,7 +49,7 @@ class MakerTracks extends ArrayList <Track>{
       file.print(day);
       file.print(","); 
            
-      for(int j=0; j < 5; j++){
+      for(int j=0; j < (14-delivery_deadline+1); j++){
         if(this.size() == 0){
           file.print(" ");
           file.print(",");

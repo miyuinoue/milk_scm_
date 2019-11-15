@@ -33,6 +33,20 @@ class Milkstock extends ArrayList <Milk>{
     
     return waste_size;
   }
+  
+  
+  //牛乳の販売価格の設定
+  void price(int p){
+    for(int i=0; i<this.size(); i++){
+      this.get(i).price = p;
+    }
+  }
+  
+  void discount(){
+    for(int i=0; i<this.size(); i++){
+      this.get(i).price -= 5;
+    }
+  }
 
 
 

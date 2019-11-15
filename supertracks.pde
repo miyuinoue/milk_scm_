@@ -20,14 +20,14 @@ class SuperTracks extends ArrayList <Track>{
       file.print(",");
       
       file.print("expiration");     
-      for(int i=14; i>4; i--){
+      for(int i=14; i>(sales_deadline-1); i--){
         file.print(",");
       }
       file.print("size");
       
       file.println(" ");
       
-      for(int i=14; i>4; i--){
+      for(int i=14; i>(sales_deadline-1); i--){
         file.print(",");
         file.print(i);
       }
@@ -50,7 +50,7 @@ class SuperTracks extends ArrayList <Track>{
       file.print(day);
       file.print(","); 
            
-      for(int j=0; j < 10; j++){
+      for(int j=0; j < (14-sales_deadline+1); j++){
         if(this.size() == 0){
           file.print(" ");
           file.print(",");
