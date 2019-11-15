@@ -4,9 +4,14 @@ class Customer {
 
   float iexp = 0;
   double jexp;
+  int getexp; 
   double vsum;
   double probability = 0;
   int notbuy;
+  int fresh_max;
+  int fresh_min;
+  int money_max;
+  int money_min;
 
   float A = 30;  //振幅
   float w = 12;  //角周波数（周期）
@@ -26,8 +31,6 @@ class Customer {
   IntList money_list = new IntList();
   ArrayList<Double> f = new ArrayList<Double>();//fresh
   ArrayList<Double> p = new ArrayList<Double>();//price  
-
-  IntList exp = new IntList();
 
   ArrayList<Integer> select_fre = new ArrayList<Integer>();
   ArrayList<Integer> select_pri = new ArrayList<Integer>();
@@ -49,8 +52,7 @@ class Customer {
   }
 
 
-  void customer_first() {
-
+  void fresh_price() {
     //4～14日の賞味期限を正規化するためにfresh_listに格納
     for (int i=E; i>=(sales_deadline-1); i--) {
       fresh_list.append(i);
@@ -61,6 +63,14 @@ class Customer {
       money_list.append(i);
     }
 
+    fresh_max = fresh_list.max();
+    fresh_min = fresh_list.min();
+    money_max = money_list.max();
+    money_min = money_list.min();
+  }
+
+
+  void customer_first() {
     for (int i=0; i<14; i++) {
       select_fre.add(0);
       select_pri.add(0);
@@ -152,9 +162,10 @@ class Customer {
 
   //count番目の牛乳を購入する
   int buy() {     
-    double random_num = Math.random();
+    double random_num = sum() * Math.random();
     double prob_sum = 0;
     int count = 0 ;
+
 
     //count番目の牛乳を購入する 
     for (int i=0; i<prob.size(); i++) {
@@ -224,13 +235,13 @@ class Customer {
     u.clear();
 
     for (int i=0; i<f.size(); i++) {
-      jexp = (Math.exp(utility(f.get(i), p.get(i))) / sum());  
+      jexp = Math.exp(utility(f.get(i), p.get(i)));  
 
       prob.add(jexp);
       u.add(utility(f.get(i), p.get(i)));
     }    
 
-    prob.add(Math.exp(notbuy())/sum());//買わない効用を付け足す
+    prob.add(Math.exp(notbuy()));//買わない効用を付け足す
   }
 
 
@@ -274,90 +285,45 @@ class Customer {
 
     if (supershelf.size() == 0)return;
 
-    for (int i=0; i<supershelf.size(); i++) {
-      if (supershelf.get(i).size() == 0)continue;
+    int getnum = supershelf.sales_deadline();
 
-      if (supershelf.get(i).exp_search() < sales_deadline) {
-        continue;
-      } else {
+    for (int i=getnum; i<supershelf.size(); i++) {
+      for (int j=0; j<supershelf.get(i).size(); j++) {
+        double x = (supershelf.get(i).get(j).expiration - fresh_min)/(double)(fresh_max - fresh_min);  
+        double y = 1.0 - (supershelf.get(i).get(j).price - money_min)/(double)(money_max - money_min);
 
-        for (int j=0; j<supershelf.get(i).size(); j++) {
-          double x = (supershelf.get(i).get(j).expiration - fresh_list.min())/(double)(fresh_list.max() - fresh_list.min());  
-          double y = 1.0 - (supershelf.get(i).get(j).price - money_list.min())/(double)(money_list.max() - money_list.min());
-
-          f.add(x);
-          p.add(y);
-        }
+        f.add(x);
+        p.add(y);
       }
     }
   }
+
+
+  //void utility_list() {
+  //  for (int i=0; i<fresh_list.size(); i++) {
+  //    ArrayList<Double> list = new ArrayList<Double>();
+  //    for (int j=0; j<money_list.size(); j++) {
+  //      println(i+"+"+j);
+  //      list.add(utility(fresh_list.get(i), money_list.get(j)));
+  //    }
+  //    utility_list.add(list);
+  //  }
+  //}
+
 
 
   void select_milk() {
     if (buy.size() == 0)return;
 
     for (int i=0; i<buy.get(buy.size()-1).size(); i++) {  
+      if (1 <= buy.get(buy.size()-1).get(i).expiration && buy.get(buy.size()-1).get(i).expiration <=14) {
 
-      switch(buy.get(buy.size()-1).get(i).expiration) {
-      case 14:
-        select_fre.set(0, select_fre.get(0)+1);
-        break;
+        int num = 14 - buy.get(buy.size()-1).get(i).expiration;
+        select_fre.set(num, select_fre.get(num)+1);
+        
+      } else if (buy.get(buy.size()-1).get(i).expiration == 0) {
 
-      case 13:
-        select_fre.set(1, select_fre.get(1)+1);
-        break;
-
-      case 12:
-        select_fre.set(2, select_fre.get(2)+1);
-        break;
-
-      case 11:
-        select_fre.set(3, select_fre.get(3)+1);
-        break;
-
-      case 10:
-        select_fre.set(4, select_fre.get(4)+1);
-        break;
-
-      case 9:
-        select_fre.set(5, select_fre.get(5)+1);
-        break;
-
-      case 8:
-        select_fre.set(6, select_fre.get(6)+1);
-        break;
-
-      case 7:
-        select_fre.set(7, select_fre.get(7)+1);
-        break;
-
-      case 6:
-        select_fre.set(8, select_fre.get(8)+1);
-        break;
-
-      case 5:
-        select_fre.set(9, select_fre.get(9)+1);
-        break;
-
-      case 4:
-        select_fre.set(10, select_fre.get(10)+1);
-        break;
-
-      case 3:
-        select_fre.set(11, select_fre.get(11)+1);
-        break;
-
-      case 2:
-        select_fre.set(12, select_fre.get(12)+1);
-        break;
-
-      case 1:
-        select_fre.set(13, select_fre.get(13)+1);
-        break;
-
-      case 0:
         this.notbuy++;
-        break;
       }
     }
   }
@@ -366,9 +332,10 @@ class Customer {
   void select_price() {
     if (buy.size() == 0)return;
 
-    for (int i=0; i<buy.get(buy.size()-1).size(); i++) {  
+    for (int i=0; i<buy.get(buy.size()-1).size(); i++) {
+      //if ((150-buy.get(buy.size()-1).get(i).price)/5 
 
-      switch(buy.get(buy.size()-1).get(i).price) {
+        switch(buy.get(buy.size()-1).get(i).price) {
       case 150:
         select_pri.set(0, select_pri.get(0)+1);
         break;
@@ -432,7 +399,7 @@ class Customer {
   //選択回数のリスト
   void customer_list() {
     ArrayList<Integer> list = new ArrayList<Integer>();
-    
+
     list.add(day);//日にち
     list.add(this.customertotal);//来店数
     //選択回数
@@ -555,7 +522,7 @@ class Customer {
         }
         file.println("");
       }
-      
+
       file.println("");
 
       file.close();

@@ -21,6 +21,8 @@ class Supershelf extends ArrayList <Milkstock> {
   int leadtime = 0;
   int ordercycle = 1;
 
+  int getexp;
+
 
 
   Supershelf() {
@@ -40,6 +42,7 @@ class Supershelf extends ArrayList <Milkstock> {
 
 
   void super_first() {
+    s.clear();
     for (int i=0; i<7; i++) {
       s.append(100);
     }
@@ -107,14 +110,10 @@ class Supershelf extends ArrayList <Milkstock> {
   //5日の在庫は一日の最後に廃棄になるのでカウントしない
   int inventories() {
     int inv = 0;
+    int getnum = sales_deadline();
 
-    for (int i=0; i<this.size(); i++) {
-
-      if (this.get(i).exp_search() < sales_deadline) {
-        continue;
-      } else {
-        inv += this.get(i).size();
-      }
+    for (int i=getnum; i<this.size(); i++) {
+      inv += this.get(i).size();
     }
 
     return inv;
@@ -168,8 +167,6 @@ class Supershelf extends ArrayList <Milkstock> {
 
   //販売
   void sales(int c) {
-
-
     this.visitors++;
     int count=0;
 
@@ -185,24 +182,19 @@ class Supershelf extends ArrayList <Milkstock> {
       return;
     }
 
+    int getnum = sales_deadline();
 
-    for (int i=0; i<this.size(); i++) {
-      if (this.get(i).size() == 0)continue;
+    for (int i=getnum; i<this.size(); i++) {
+      for (int j=0; j<this.get(i).size(); j++) {
+        //countとshelfの配列はどちらも0始まり
+        if (count == c) {
+          buy.get(buy.size()-1).add(this.get(i).remove(j));
+          this.total_num++;
+          this.sales_num++;
 
-      if (this.get(i).exp_search() < sales_deadline) {
-        continue;
-      } else {
-        for (int j=0; j<this.get(i).size(); j++) {
-          //countとshelfの配列はどちらも0始まり
-          if (count == c) {
-            buy.get(buy.size()-1).add(this.get(i).remove(j));
-            this.total_num++;
-            this.sales_num++;
-
-            return;
-          }
-          count++;
+          return;
         }
+        count++;
       }
     }
   }
@@ -241,6 +233,21 @@ class Supershelf extends ArrayList <Milkstock> {
       }
     }
   }
+
+
+  int sales_deadline() {
+    for (int i=supershelf.size()-1; i>=0; i--) {
+      if (supershelf.get(i).size() == 0)continue;
+
+      if (supershelf.get(i).exp_search() < sales_deadline) {
+        getexp = i+1;
+        break;
+      }
+    }
+
+    return getexp;
+  }
+
 
   void shelf_list() {
     ArrayList<Integer> list = new ArrayList<Integer>();

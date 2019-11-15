@@ -34,6 +34,7 @@ class Maker extends ArrayList <Milkstock> {
   }
 
   void maker_first() {
+    m.clear();
     for (int i=0; i<7; i++) {
       m.append(100);
     }

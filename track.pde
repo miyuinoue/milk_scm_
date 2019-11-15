@@ -1,132 +1,129 @@
-class Track extends ArrayList <Milkstock>{
+class Track extends ArrayList <Milkstock> {
 
- ArrayList<Track> maker_track = new ArrayList<Track>(); //trackの複数形tracksのクラスをつくる
- ArrayList<Track> super_track = new ArrayList<Track>(); 
- 
-  
-  Track(int num){
-    for(int i=0; i<num; i++){
+  ArrayList<Track> maker_track = new ArrayList<Track>(); //trackの複数形tracksのクラスをつくる
+  ArrayList<Track> super_track = new ArrayList<Track>(); 
+  Track() {
+  }
+
+  Track(int num) {
+    for (int i=0; i<num; i++) {
       this.add(new Milkstock());
     }
   }
-  
 
-  void maker_addtrack(Milk milk){
+
+  void maker_addtrack(Milk milk) {
     milk.movingday_maker_super = day;
-    
+
     //this.get(14 - milk.expiration).add(milk);
-    switch(milk.expiration){
+    switch(milk.expiration) {
 
-      case 14:
+    case 14:
 
-        this.get(0).add(milk);
+      this.get(0).add(milk);
 
-        break;
+      break;
 
-      case 13:
+    case 13:
 
-        this.get(1).add(milk);
+      this.get(1).add(milk);
 
-        break;
+      break;
 
-      case 12:
+    case 12:
 
-        this.get(2).add(milk);
+      this.get(2).add(milk);
 
-        break;
+      break;
 
-      case 11:
+    case 11:
 
-        this.get(3).add(milk);
+      this.get(3).add(milk);
 
-        break;
+      break;
 
-      case 10:
+    case 10:
 
-        this.get(4).add(milk);
+      this.get(4).add(milk);
 
-        break;
-
+      break;
     }
-
   }
-  
-  void super_addtrack(Milk milk){
+
+  void super_addtrack(Milk milk) {
     milk.movingday_stock_shelf = day;
-    
+
     //this.get(14 - milk.expiration).add(milk);
-    switch(milk.expiration){
+    switch(milk.expiration) {
 
-      case 14:
+    case 14:
 
-        this.get(0).add(milk);
+      this.get(0).add(milk);
 
-        break;
+      break;
 
-      case 13:
+    case 13:
 
-        this.get(1).add(milk);
+      this.get(1).add(milk);
 
-        break;
+      break;
 
-      case 12:
+    case 12:
 
-        this.get(2).add(milk);
+      this.get(2).add(milk);
 
-        break;
+      break;
 
-      case 11:
+    case 11:
 
-        this.get(3).add(milk);
+      this.get(3).add(milk);
 
-        break;
+      break;
 
-      case 10:
+    case 10:
 
-        this.get(4).add(milk);
+      this.get(4).add(milk);
 
-        break;
+      break;
 
-      case 9:
+    case 9:
 
-        this.get(5).add(milk);
+      this.get(5).add(milk);
 
-        break;
+      break;
 
-      case 8:
+    case 8:
 
-        this.get(6).add(milk);
+      this.get(6).add(milk);
 
-        break;
+      break;
 
-      case 7:
+    case 7:
 
-        this.get(7).add(milk);
+      this.get(7).add(milk);
 
-        break;
+      break;
 
-      case 6:
+    case 6:
 
-        this.get(8).add(milk);
+      this.get(8).add(milk);
 
-        break;
+      break;
 
-      case 5:
+    case 5:
 
-        this.get(9).add(milk);
+      this.get(9).add(milk);
 
-        break;
-
+      break;
     }
-    
   }
 
 
 
-  
-  void super_list(){
+
+  void super_list() {
     //println(day);
-    try{
+    try {
       PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\supertrack\\"+"supertrack"+day+".csv")));
       file.println("");
 
@@ -135,7 +132,7 @@ class Track extends ArrayList <Milkstock>{
 
       file.print("date: " + day);
       file.println("");
-      
+
       file.print("number");
       file.print(",");
       file.print("expiration");
@@ -144,35 +141,34 @@ class Track extends ArrayList <Milkstock>{
       file.print(",");
       file.print("size");
       file.println(" ");
-      
-      for(int i=0; i < super_track.size(); i++){
-        for(int j=0; j < 10; j++){
+
+      for (int i=0; i < super_track.size(); i++) {
+        for (int j=0; j < 10; j++) {
           file.print(i+1);
           file.print(",");
           //file.print("makertrack");
-          
-          if(super_track.get(i).get(j).size() == 0){
+
+          if (super_track.get(i).get(j).size() == 0) {
             file.print(" ");
             file.print(",");
-            file.print(" "); 
-          }else{
+            file.print(" ");
+          } else {
             file.print(super_track.get(i).get(j).exp_search());
             file.print(",");
             file.print(super_track.get(i).get(j).get(0).production_date);
           }
-          
+
           file.print(",");
           file.print(super_track.get(i).get(j).size());
           file.println("");
-          
         }
       }
 
       file.close();
-    }catch (IOException e) {
+    }
+    catch (IOException e) {
       println(e);
       e.printStackTrace();
     }
-
   }
 }
