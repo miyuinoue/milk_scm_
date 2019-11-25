@@ -1,71 +1,93 @@
-class SuperTracks extends ArrayList <Track>{
-  
-    SuperTracks(){
-  }
-  
-  void addtrack(Milk milk){
-    this.get(this.size()-1).super_addtrack(milk);
-    println(makertracks.size());
-  }
-  
-  void super_newlist(){
-    try{
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\track\\"+"supertracks.csv")));
-      file.println("");
+class SuperTracks extends ArrayList <Track> {
 
-      file.print("[SUPERTRACK]");
-      file.println("");
+  SuperTracks() {
+  }
+
+  void addtrack(Milk milk) {
+    this.get(this.size()-1).super_addtrack(milk);
+    //println(makertracks.size());
+  }
+
+  //void super_newlist() {
+  //  try {
+  //    PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/track/supertracks.csv")));
+  //    file.println("");
+
+  //    file.print("[SUPERTRACK]");
+  //    file.println("");
+
+  //    file.print("date");
+  //    file.print(",");
+
+  //    file.print("expiration");     
+  //    for (int i=14; i>(sales_deadline-1); i--) {
+  //      file.print(",");
+  //    }
+  //    file.print("size");
+
+  //    file.println(" ");
+
+  //    for (int i=14; i>(sales_deadline-1); i--) {
+  //      file.print(",");
+  //      file.print(i);
+  //    }
+  //    file.println(" ");
+
+
+  //    file.close();
+  //  }
+  //  catch (IOException e) {
+  //    println(e);
+  //    e.printStackTrace();
+  //  }
+  //}      
+
+
+  void super_addfile() {
+    try {
+      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/track/supertracks.csv"),true));
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\track\\supertracks.csv"),true));
 
       file.print("date");
       file.print(",");
-      
-      file.print("expiration");     
-      for(int i=14; i>(sales_deadline-1); i--){
-        file.print(",");
-      }
-      file.print("size");
-      
-      file.println(" ");
-      
-      for(int i=14; i>(sales_deadline-1); i--){
-        file.print(",");
-        file.print(i);
-      }
+
+      file.print("expiration");        
       file.println(" ");
 
-      
-      file.close();
-    
-    }catch (IOException e) {
-      println(e);
-      e.printStackTrace();
-    }  
-  }      
-    
-  
-  void super_addlist(){
-    try{
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\track\\"+"supertracks.csv"),true));
-      
-      file.print(day);
-      file.print(","); 
-           
-      for(int j=0; j < (14-sales_deadline+1); j++){
-        if(this.size() == 0){
-          file.print(" ");
-          file.print(",");
-        }else{
-          file.print(this.get(this.size()-1).get(j).size());
-          file.print(",");
+      for (int i=14; i>=sales_deadline; i--) {
+        file.print(",");
+        file.print(i + "niti");
+      }
+      file.println(" ");
+      int date=1;
+
+      for (int k=0; k<this.size(); k++) {
+        file.print(date);
+        file.print(",");
+        date++;
+
+        if (this.get(k).size() == 0) {
+          for (int i=0; i<10; i++) {
+            file.print("0");
+            file.print(",");
+          }
+          file.println(" ");
+        } else {
+
+          for (int j=0; j < this.get(k).size(); j++) {
+            file.print(this.get(k).get(j).size());
+            file.print(",");
+          }
+          file.println(" ");
         }
       }
       file.println(" ");
 
-      file.close();  
-    }catch (IOException e) {
+      file.close();
+    }
+    catch (IOException e) {
       println(e);
       e.printStackTrace();
     }
   }
-  
 }

@@ -19,7 +19,7 @@ Customer customer;
 
 
 int day = 1;
-int span = 180;
+int span = 365;
 int T = 3; //倉庫から商品棚への品出し期間の総数
 int E = 14; //賞味期限の最大日数
 int maker_demand = 0;
@@ -33,7 +33,7 @@ boolean noexpiration;
 int shelf_capacity = 50;
 int stock_capacity = 100;
 int maker_capacity = 300;
-int restock = 0;
+int restocking = 0;
 int super_loss;
 int produce = 0;
 
@@ -47,6 +47,7 @@ int r = 0;
 
 int timemaker = 1;
 int timesuper = 1;
+int timetotal = 1;
 
 ArrayList<Milkstock> buy = new ArrayList<Milkstock>();
 ArrayList<ArrayList<Integer>> maker_list = new ArrayList<ArrayList<Integer>>();
@@ -59,8 +60,12 @@ ArrayList<ArrayList<Double>> utility_list = new ArrayList<ArrayList<Double>>();
 
 ArrayList<Integer> maker_waste;
 ArrayList<Integer> super_waste;
+ArrayList<Integer> total_waste;
+
 ArrayList<ArrayList<Integer>> maker_wastes = new ArrayList<ArrayList<Integer>>();
 ArrayList<ArrayList<Integer>> super_wastes = new ArrayList<ArrayList<Integer>>();
+ArrayList<ArrayList<Integer>> total_wastes = new ArrayList<ArrayList<Integer>>();
+
 
 
 
@@ -79,41 +84,52 @@ void setup() {
 
 
 void draw() {
+  int ms = millis();
 
   customer.fresh_price();//正規化するための賞味期限と価格のリストの作成
+  //5回
+  for (int a=1; a<=1; a++) {
+    maker_wastes.clear();
+    super_wastes.clear();
+    total_wastes.clear();
 
-  for (int a=0; a<5; a++) {
-    for (int b=0; b<=5; b++) {
+
+    //fresh効用
+    for (int b=0; b<=10; b+=10) {
       freshness = b;
 
       maker_waste = new ArrayList<Integer>();
-      super_waste = new ArrayList<Integer>();
+      super_waste = new ArrayList<Integer>();   
+      total_waste = new ArrayList<Integer>();
 
-      for (int c=0; c<=1; c+=10) {
+      //money効用
+      for (int c=0; c<=10; c+=10) {
+        //  //println("fresh:" + freshness + "   money:" + money);
         money = c;
 
         reset();
 
-        int ms = millis();
-
-        main_scm();//68981
-
+        main_scm();
         maker_waste.add(maker.maker_totalwaste);
-        super_waste.add((superstock.stock_totalwaste + supershelf.shelf_totalwaste));
-        
-        println(ms);
+        super_waste.add(superstock.stock_totalwaste + supershelf.shelf_totalwaste);
+        total_waste.add(maker.maker_totalwaste + superstock.stock_totalwaste + supershelf.shelf_totalwaste);
+
+        //println(millis()-ms);
       }
       maker_wastes.add(maker_waste);
       super_wastes.add(super_waste);
+      total_wastes.add(total_waste);
     }
+
 
     makerwaste_file();
     superwaste_file();
+    totalwaste_file();
   }
 
 
 
-  println("fin.");
+  println((millis()-ms) + "ms");
 
   exit();
 }
@@ -138,9 +154,11 @@ void main_scm() {
         superstock.delivery(makertracks);//トラックがスーパー倉庫に納品する，stockの牛乳を150円にする
       }
 
-      this.restock = shelf_capacity - supershelf.inventories();
-      superstock.stocking(supertracks, this.restock);//（shelfの最大在庫量 - shelfの現在の在庫量）をトラックに積む
+      this.restocking = shelf_capacity - supershelf.inventories();//補充量
+      //if (this.restocking > 50)println(this.restocking);
+      superstock.stocking(supertracks, this.restocking);//（shelfの最大在庫量 - shelfの現在の在庫量）をトラックに積む
       supershelf.restock(supertracks);//トラックに入れた牛乳をstockからshelfに品出しする
+
 
 
       //人数の決定
@@ -153,7 +171,6 @@ void main_scm() {
       //  customer.probability(supershelf);
       //  supershelf.sales(customer.buy());
       //}
-
 
       //客の選択確率を計算し，購入．②
       for (int i=0; i<customernum; i++) {
@@ -200,9 +217,6 @@ void main_scm() {
     supershelf.shelf_list();
     customer.customer_list();
 
-    makertracks.maker_addlist();
-    supertracks.super_addlist();
-
     //add_file();
 
 
@@ -223,6 +237,8 @@ void main_scm() {
   maker.addfile();
   super_addfile();
   customer.addfile();
+  makertracks.maker_addfile();
+  supertracks.super_addfile();
 }
 
 
@@ -242,10 +258,10 @@ void reset() {
   utility_list.clear();
 
 
-  maker_waste.clear();
-  super_waste.clear();
-  maker_wastes.clear();
-  super_wastes.clear();
+  //maker_waste.clear();
+  //super_waste.clear();
+  //maker_wastes.clear();
+  //super_wastes.clear();
 
   superstock.stock.clear();
 
@@ -256,11 +272,13 @@ void reset() {
   customer.p.clear();
   customer.select_fre.clear();
   customer.select_pri.clear();
-  
-  track.maker_track.clear();
-  track.super_track.clear();
+
+  //track.maker_track.clear();
+  //track.super_track.clear();
+
 
   milkstock.clear();
+  track.clear();
   maker.clear();
   superstock.clear();
   supershelf.clear();
@@ -269,21 +287,22 @@ void reset() {
 }
 
 
-void file_first() {
+//void file_first() {
 
-  //new_file();
-  maker.newfile();
-  super_newfile();
-  customer.newfile();
+//  //new_file();
+//  maker.newfile();
+//  super_newfile();
+//  customer.newfile();
 
-  makertracks.maker_newlist();
-  supertracks.super_newlist();
-}
+//  makertracks.maker_newlist();
+//  supertracks.super_newlist();
+//}
 
 
-void super_newfile() {
+void super_addfile() {
   try {
-    PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\super\\super_"+freshness+"_"+money+".csv")));
+    //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/super/super_"+freshness+"_"+money+".csv"), true));
+    PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\super\\super_"+freshness+"_"+money+".csv"), true));
 
     file.println("");
     file.print(",");
@@ -299,62 +318,62 @@ void super_newfile() {
 
     file.println("");
 
-    file.print("日付");
+    file.print("day");
     file.print(",");
 
     //superstock
-    file.print("賞味期限");//14～
+    file.print("syoumikigenn");//14～
     for (int i=14; i>(sales_deadline-1); i--) {
       file.print(",");
     }
-    file.print("納品量");
+    file.print("nouhinn-ryo");
     file.print(",");
-    file.print("品出し出荷量");
+    file.print("shinadashi-ryo");
     for (int i=0; i<T; i++) {
       file.print(",");
     } 
-    file.print("機会損失");
+    file.print("kikaisonnshitsu");
     file.print(",");
     //file.print("総品出し量");
     //file.print(",");
-    file.print("廃棄量");
+    file.print("haiki-ryo");
     file.print(",");
-    file.print("総廃棄量");
+    file.print("total-haiki-ryo");
     file.print(",");
 
     //supershelf
     file.print(",");
-    file.print("賞味期限");//14～5日
+    file.print("syoumikigenn");//14～5日
     for (int i=14; i>(sales_deadline-1); i--) {
       file.print(",");
     }
-    file.print("品出し納品量");//1期ごとの在庫量を出力する？
+    file.print("shinadashi-ryo");//1期ごとの在庫量を出力する？
     file.print(",");
-    file.print("来客数");
+    file.print("raikyaku-su");
     for (int i=0; i<T; i++) {
       file.print(",");
     } 
-    file.print("総来客数");//在庫数をいれるべき？
+    file.print("total-raikyaku-su");//在庫数をいれるべき？
     file.print(",");
-    file.print("販売数");
+    file.print("hanbai-su");
     file.print(",");
-    file.print("需要予測");
+    file.print("zyuyouyosoku");
     file.print(",");
-    file.print("標準偏差");
+    file.print("hyouzyunnhennsa");
     file.print(",");
-    file.print("安全在庫");
+    file.print("annzennzaiko");
     file.print(",");
-    file.print("発注量");
+    file.print("haxtyuu-ryo");
     file.print(",");       
-    file.print("機会損失");
+    file.print("kikaisonnshitsu");
     file.print(",");
-    file.print("必要補充数量");
+    file.print("hozyuu-ryo");
     file.print(",");
     //file.print("総販売量");
     //file.print(",");
-    file.print("廃棄量");
+    file.print("haiki-ryo");
     file.print(",");
-    file.print("総廃棄量");
+    file.print("total-haiki-ryo");
     file.print(",");
 
 
@@ -362,47 +381,34 @@ void super_newfile() {
 
 
     //stock
-    file.print(",");
     for (int i=14; i>(sales_deadline-1); i--) {
       file.print(",");
-      file.print(i + "日");
+      file.print(i + "niti");
     }
 
     file.print(",");
     file.print(",");
     for (int i=0; i<T; i++) {
-      file.print((i+1) + "期"); 
+      file.print((i+1) + "ki"); 
       file.print(",");
     }
+    file.print(",");
     file.print(",");
     file.print(",");
 
     //shelf
     for (int i=14; i>(sales_deadline-1); i--) {
       file.print(",");
-      file.print(i + "日");
+      file.print(i + "niti");
     }
     file.print(",");
     file.print(",");
     for (int i=0; i<T; i++) {
-      file.print((i+1) + "期"); 
+      file.print((i+1) + "ki"); 
       file.print(",");
     }
 
     file.println("");
-    file.close();
-  }
-  catch (IOException e) {
-    println(e);
-    e.printStackTrace();
-  }
-}
-
-
-
-void super_addfile() {
-  try {
-    PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\super\\super_"+freshness+"_"+money+".csv"), true));
 
     for (int i=0; i<stock_list.size(); i++) {
       for (int j=0; j<stock_list.get(i).size(); j++) {
@@ -433,18 +439,18 @@ void super_addfile() {
 void makerwaste_file() {
   try {
 
-    PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\waste\\maker_waste.csv"), true));
+    //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/maker_waste.csv"), true));
+    PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\waste\\maker_waste.csv"), true));
 
-    file.println("");
     file.print(timemaker);
-    file.println("");
+    file.print(",");
 
     for (int i=0; i<maker_wastes.size(); i++) {
       for (int j=0; j<maker_wastes.get(i).size(); j++) {
         file.print(maker_wastes.get(i).get(j));
         file.print(",");
       }
-      file.println("");
+      file.print(",");
     }
 
     timemaker++;
@@ -462,21 +468,51 @@ void makerwaste_file() {
 
 void superwaste_file() {
   try {
-    PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\waste\\super_waste.csv"), true));
+    //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/super_waste.csv"), true));
+    PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\waste\\super_waste.csv"), true));
 
-    file.println("");
     file.print(timesuper);
-    file.println("");
+    file.print(",");
 
     for (int i=0; i<super_wastes.size(); i++) {
       for (int j=0; j<super_wastes.get(i).size(); j++) {
         file.print(super_wastes.get(i).get(j));
         file.print(",");
       }
-      file.println("");
+      file.print(",");
     }
 
     timesuper++;
+
+    file.println("");
+
+    file.close();
+  }
+  catch (IOException e) {
+    println(e);
+    e.printStackTrace();
+  }
+}
+
+void totalwaste_file() {
+  try {
+    PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\waste\\total_waste.csv"), true));
+    //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/total_waste.csv"), true));
+    //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/total_waste.csv"), true));
+    
+    file.print(timetotal);
+    file.print(",");
+
+    for (int i=0; i<total_wastes.size(); i++) {
+      for (int j=0; j<total_wastes.get(i).size(); j++) {
+        file.print(total_wastes.get(i).get(j));
+        file.print(",");
+      }
+      file.print(",");
+    }
+
+    timetotal++;
+
 
     file.println("");
 

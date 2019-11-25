@@ -84,7 +84,7 @@ class Supershelf extends ArrayList <Milkstock> {
     int inv_sum = 0;
     int inv_plus = 0;
 
-    //在庫は常に最低でも50個持っている状態にしたい///50でいいの？
+    //在庫は常に最低でも50個持っている状態にしたい//50でいいの？
     if ((istock + ishelf) >= shelf_capacity) {
       inv_sum = (istock + ishelf) - shelf_capacity;
     } else {
@@ -98,7 +98,7 @@ class Supershelf extends ArrayList <Milkstock> {
     order_quantity = order_quantity + (inv_plus + sales_loss);//既に在庫が50個以下だったら不足分も追加で発注する, 機会損失分も追加で発注する
 
     //空き容量との比較
-    capa = (shelf_capacity + stock_capacity) - (istock + ishelf);
+    capa = (shelf_capacity + stock_capacity) - (istock + ishelf);//150-在庫
     if (capa < order_quantity)order_quantity = capa;
 
 
@@ -110,11 +110,13 @@ class Supershelf extends ArrayList <Milkstock> {
   //5日の在庫は一日の最後に廃棄になるのでカウントしない
   int inventories() {
     int inv = 0;
-    int getnum = sales_deadline();
+    int getnum = stock_search();
 
     for (int i=getnum; i<this.size(); i++) {
       inv += this.get(i).size();
     }
+    
+    if(inv>50)println(freshness+ ":" + money +"   day"+ day+ "    inv"+ inv);
 
     return inv;
   }
@@ -125,7 +127,7 @@ class Supershelf extends ArrayList <Milkstock> {
   void restock(SuperTracks supertracks) {
     if (supertracks.size() == 0)return;
 
-    restock = 0;
+    this.restock = 0;//品出しした量
     noexpiration = true;
     int i = supertracks.size()-1;
 
@@ -147,7 +149,7 @@ class Supershelf extends ArrayList <Milkstock> {
             noexpiration = false;
             for (int m=0; m<supertracks.get(i).get(j).size(); m++) {
               this.get(l).add(supertracks.get(i).get(j).get(m));
-              restock++;
+              this.restock++;
             }
           }
         }
@@ -158,43 +160,40 @@ class Supershelf extends ArrayList <Milkstock> {
         this.add(new Milkstock());
         for (int n=0; n<supertracks.get(i).get(j).size(); n++) {
           this.get(this.size()-1).add(supertracks.get(i).get(j).get(n));
-          restock++;
+          this.restock++;
         }
       }
     }
+    
+    //if(this.restock >50)println(this.restock);
   }
 
 
   //販売
   void sales(int c) {
     this.visitors++;
-    int count=0;
-
+    //int count=0;
     if (this.inventories() == 0) {
       sales_loss++;
       return;
     }
 
-    if (c > (this.inventories()-1)) { 
-      buy.get(buy.size()-1).add(new Milk());
-      //sales_loss++;
-      //notbuy_num++;
+    //買わないを選択した人（c番目が買わない・(this.inventories()-1)+1番目が買わない選択肢）
+    if (c == this.inventories()) { 
+      buy.get(buy.size()-1).notbuy_milk();
       return;
     }
 
-    int getnum = sales_deadline();
+    int getnum = stock_search();
 
     for (int i=getnum; i<this.size(); i++) {
       for (int j=0; j<this.get(i).size(); j++) {
-        //countとshelfの配列はどちらも0始まり
-        if (count == c) {
+        c--;
+        if (c == 0) {
           buy.get(buy.size()-1).add(this.get(i).remove(j));
           this.total_num++;
           this.sales_num++;
-
-          return;
         }
-        count++;
       }
     }
   }
@@ -235,17 +234,19 @@ class Supershelf extends ArrayList <Milkstock> {
   }
 
 
-  int sales_deadline() {
-    for (int i=supershelf.size()-1; i>=0; i--) {
-      if (supershelf.get(i).size() == 0)continue;
+  int stock_search() {
+    for (int i=this.size()-1; i>=0; i--) {
+      if (this.get(i).size() == 0)continue;
 
-      if (supershelf.get(i).exp_search() < sales_deadline) {
-        getexp = i+1;
+      //println(i + ":     "+ supershelf.get(i).exp_search() );
+
+      if (this.get(i).exp_search() < sales_deadline) {
+        this.getexp = i+1;
         break;
       }
     }
 
-    return getexp;
+    return this.getexp;
   }
 
 
@@ -262,7 +263,6 @@ class Supershelf extends ArrayList <Milkstock> {
           sh = true;
         }
       }
-
       if (sh == false) {
         list.add(0);
       }
@@ -288,150 +288,4 @@ class Supershelf extends ArrayList <Milkstock> {
     shelf_list.add(list);
   }
 
-
-  void shelf_newfile() {
-    try {
-      //PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\file\\scm.csv")));
-
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\super_shelf\\shelf_"+freshness+"_"+money+".csv")));
-      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/ondlab/milk_scm_/file/scm1.csv")));//mac
-      file.println("");
-      file.print(",");
-
-      file.print("[SUPERSHELF]");
-
-      file.println("");
-
-      file.print("日付");
-      file.print(",");
-
-
-      //supershelf
-      file.print(",");
-      file.print("賞味期限");//14～5日
-      for (int i=14; i>(sales_deadline-1); i--) {
-        file.print(",");
-      }
-      file.print("品出し納品量");//1期ごとの在庫量を出力する？
-      file.print(",");
-      file.print("来客数");
-      for (int i=0; i<T; i++) {
-        file.print(",");
-      } 
-      file.print("総来客数");//在庫数をいれるべき？
-      file.print(",");
-      file.print("販売数");
-      file.print(",");
-      file.print("需要予測");
-      file.print(",");
-      file.print("標準偏差");
-      file.print(",");
-      file.print("安全在庫");
-      file.print(",");
-      file.print("発注量");
-      file.print(",");       
-      file.print("機会損失");
-      file.print(",");
-      file.print("必要補充数量");
-      file.print(",");
-      //file.print("総販売量");
-      //file.print(",");
-      file.print("廃棄量");
-      file.print(",");
-      file.print("総廃棄量");
-      file.print(",");
-
-      file.println("");
-
-      file.print(",");
-      for (int i=14; i>(sales_deadline-1); i--) {
-        file.print(",");
-        file.print(i + "日");
-      }
-      file.print(",");
-      file.print(",");
-      for (int i=0; i<T; i++) {
-        file.print((i+1) + "期"); 
-        file.print(",");
-      }
-
-
-
-      file.println("");
-      file.close();
-    }
-    catch (IOException e) {
-      println(e);
-      e.printStackTrace();
-    }
-  }
-
-
-
-  void shelf_addfile() {
-    try {
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\super_shelf\\shelf_"+freshness+"_"+money+".csv"), true));
-
-      file.print(day);
-      file.print(",");
-
-      file.print(",");
-      for (int i=14; i>(sales_deadline-1); i--) {
-        boolean sh = false;
-        for (int j=0; j<this.size(); j++) {
-
-          if (this.get(j).exp_search() == i) {
-            file.print(this.get(j).size() + "(" + this.get(j).get(0).price + ")");
-            //file.print(this.get(j).size());
-            file.print(",");
-            sh = true;
-          }
-        }
-
-        if (sh == false) {
-          file.print("0");
-          file.print(",");
-        }
-      }
-
-      file.print(this.restock);
-      file.print(",");
-      for (int i=0; i<customer.c.size(); i++) {
-        file.print(customer.c.get(i)); 
-        file.print(",");
-      }      
-      file.print(customer.customertotal);
-
-      file.print(",");
-      file.print(this.sales_num);
-      file.print(",");
-      file.print(this.demand_forecast);
-      file.print(",");
-      file.print(this.standard_deviation);
-      file.print(",");
-      file.print(this.safty_stock_super);
-      file.print(",");
-      file.print(this.order_quantity);
-      file.print(",");
-      file.print(this.sales_loss);
-      file.print(",");
-      file.print(restock);
-      file.print(",");
-      //file.print(this.total_num);
-      //file.print(",");
-      file.print(this.shelf_waste);
-      file.print(",");
-      file.print(this.shelf_totalwaste);
-      file.print(",");
-
-      file.println("");
-
-
-      file.close();
-    }
-    catch (IOException e) {
-      println(e);
-      e.printStackTrace();
-    }
-  }
 }

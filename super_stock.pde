@@ -8,7 +8,9 @@ class Superstock extends ArrayList <Milkstock> {
   int stock_totalwaste = 0;
 
   int p;
+  int getexp;
 
+  int nn=0;
 
   Superstock() {
   }
@@ -86,47 +88,22 @@ class Superstock extends ArrayList <Milkstock> {
   //古い順に、納品できるかの判定を行い、牛乳一つずつtrackのboxに入れる
   void stocking(SuperTracks supertracks, int s) {
     int stock_num = 0;
-    stock_loss = 0;
-
-    if (this.size() == 0) {
-      stock_loss += s;
-      return;
-    }
-
-
-    //賞味期限が5日～14日までの在庫のみ
-
     supertracks.add(new Track(14-sales_deadline+1));
 
-    for (int i=0; i<this.size(); i++) {
+    int carry;
+    for (int i=sales_deadline_search(); i<this.size(); i++) {
+      carry= min(s, this.get(i).size());
+      s-=carry;
 
-      if (this.get(i).exp_search() < sales_deadline) {
-        continue;
-      } else {
-        int num = i;
-      outside: 
-        while (s > 0) {
-
-          if (this.get(num).size() == 0) {
-            if (num == this.size()-1) {
-              stock_loss += s;
-              break outside;
-            }
-            num++;
-          }
-
-          while (this.get(num).size() > 0) {
-            supertracks.get(supertracks.size()-1).super_addtrack(this.get(num).remove(0));
-            s--;
-            stock_num++;
-
-            if (s == 0)break outside;
-          }
-        }
-        break;
+      for (int j=0; j<carry; j++) {
+        supertracks.addtrack(this.get(i).remove(0));
+        stock_num++;
       }
+      if (s<=0) break;
     }
 
+    stock_loss = s;
+    
     stock.append(stock_num);
     this.total_num += stock_num;
   }
@@ -243,11 +220,24 @@ class Superstock extends ArrayList <Milkstock> {
     stock_list.add(list);
   }
 
+  int sales_deadline_search() {
+    for (int i=this.size()-1; i>=0; i--) {
+      if (this.get(i).size() == 0)continue;
+
+      if (this.get(i).exp_search() < sales_deadline) {
+        this.getexp = i+1;
+        break;
+      }
+    }
+
+    return this.getexp;
+  }
+
 
 
   void stock_newfile() {
     try {
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\super_stock\\stock_"+freshness+"_"+money+".csv")));
+      PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/super1/stock_"+freshness+"_"+money+".csv")));
       file.println("");
       file.print(",");
 
@@ -313,7 +303,7 @@ class Superstock extends ArrayList <Milkstock> {
 
   void stock_addfile() {
     try {
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\super_stock\\stock_"+freshness+"_"+money+".csv"), true));
+      PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/super1/stock_"+freshness+"_"+money+".csv"), true));
 
       file.print(day);
       file.print(",");

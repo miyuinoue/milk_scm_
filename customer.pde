@@ -78,7 +78,7 @@ class Customer {
   }
 
   int random_customer(int d) {
-    float ave = 20 + A * sin(w * radians(d));
+    float ave = 25 + A * sin(w * radians(d));
     float random = ave + randomGaussian() * 10;//平均が循環変動ave・分散10の正規乱数
 
     if (random >= 0)c.append((int)random);
@@ -166,7 +166,6 @@ class Customer {
     double prob_sum = 0;
     int count = 0 ;
 
-
     //count番目の牛乳を購入する 
     for (int i=0; i<prob.size(); i++) {
       prob_sum += prob.get(i);
@@ -175,7 +174,6 @@ class Customer {
         break;
       }
     }
-
     return count;
   }
 
@@ -285,7 +283,7 @@ class Customer {
 
     if (supershelf.size() == 0)return;
 
-    int getnum = supershelf.sales_deadline();
+    int getnum = supershelf.stock_search();
 
     for (int i=getnum; i<supershelf.size(); i++) {
       for (int j=0; j<supershelf.get(i).size(); j++) {
@@ -320,9 +318,7 @@ class Customer {
 
         int num = 14 - buy.get(buy.size()-1).get(i).expiration;
         select_fre.set(num, select_fre.get(num)+1);
-        
-      } else if (buy.get(buy.size()-1).get(i).expiration == 0) {
-
+      } else if (buy.get(buy.size()-1).get(i).expiration == 100) {
         this.notbuy++;
       }
     }
@@ -335,7 +331,7 @@ class Customer {
     for (int i=0; i<buy.get(buy.size()-1).size(); i++) {
       //if ((150-buy.get(buy.size()-1).get(i).price)/5 
 
-        switch(buy.get(buy.size()-1).get(i).price) {
+      switch(buy.get(buy.size()-1).get(i).price) {
       case 150:
         select_pri.set(0, select_pri.get(0)+1);
         break;
@@ -416,67 +412,114 @@ class Customer {
   }
 
 
-  void prob_newfile() {
+  //  void prob_newfile() {
+  //    try {
+  //      PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/customer/prob_fresh"+freshness+"_price"+money+".csv")));
+  //      file.println("");
+
+  //      file.print("[PLOB]");
+  //      file.println("");
+
+  //      file.close();
+  //    }
+  //    catch (IOException e) {
+  //      println(e);
+  //      e.printStackTrace();
+  //    }
+  //  }
+
+
+  //  void prob_file(Supershelf supershelf) {
+  //    try {
+  //      PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/customer/prob_fresh"+freshness+"_price"+money+".csv"), true));
+  //      file.println("");
+
+
+  //      file.print("date: " + day);
+  //      file.println("");
+  //      file.print("inv:"+(supershelf.inventories()+1));//1個販売した後なので1少ない
+  //      file.println("");
+  //      file.print("probsize:"+prob.size());
+  //      file.println("");
+
+  //      for (int i=0; i<prob.size(); i++) {
+  //        file.print(prob.get(i));
+  //        file.println("");
+  //      }
+
+
+  //      file.close();
+  //    }
+  //    catch (IOException e) {
+  //      println(e);
+  //      e.printStackTrace();
+  //    }
+  //  }
+
+
+  //  void newfile() {
+  //    try {
+  //      PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/customer/customer_"+freshness+"_"+money+".csv")));
+
+  //      file.println("");
+  //      file.print(",");
+
+  //      file.print("[CUSTOMER]");
+  //      file.println("");
+
+  //      file.print("日付");
+
+  //      file.print(",");
+  //      file.print("来店数");
+  //      file.print(",");
+  //      file.print("選択回数");
+  //      file.print(",");
+  //      file.println("");
+
+  //      int kakaku = 150;
+  //      file.print(",");
+  //      file.print(",");
+
+  //      file.print("買わない");
+
+  //      for (int i=14; i>=sales_deadline; i--) {
+  //        file.print(",");
+  //        file.print(i + "日");
+  //      }
+
+  //      for (int i=14; i>=sales_deadline; i--) {
+  //        file.print(",");
+  //        file.print(kakaku + "円");
+  //        kakaku -= 5;
+  //      }
+  //      file.print(",");
+
+
+  //      file.println("");
+  //      file.close();
+  //    }
+  //    catch (IOException e) {
+  //      println(e);
+  //      e.printStackTrace();
+  //    }
+  //  }
+
+
+
+  void addfile() {
     try {
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\customer\\prob_fresh"+freshness+"_price"+money+".csv")));
-      file.println("");
-
-      file.print("[PLOB]");
-      file.println("");
-
-      file.close();
-    }
-    catch (IOException e) {
-      println(e);
-      e.printStackTrace();
-    }
-  }
-
-
-  void prob_file(Supershelf supershelf) {
-    try {
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\customer\\prob_fresh"+freshness+"_price"+money+".csv"), true));
-      file.println("");
-
-
-      file.print("date: " + day);
-      file.println("");
-      file.print("inv:"+(supershelf.inventories()+1));//1個販売した後なので1少ない
-      file.println("");
-      file.print("probsize:"+prob.size());
-      file.println("");
-
-      for (int i=0; i<prob.size(); i++) {
-        file.print(prob.get(i));
-        file.println("");
-      }
-
-
-      file.close();
-    }
-    catch (IOException e) {
-      println(e);
-      e.printStackTrace();
-    }
-  }
-
-
-  void newfile() {
-    try {
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\customer\\customer_"+freshness+"_"+money+".csv")));
+      //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/customer/customer_"+freshness+"_"+money+".csv"), true));
+      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\customer\\customer_"+freshness+"_"+money+".csv"), true));
 
       file.println("");
-      file.print(",");
 
-      file.print("[CUSTOMER]");
-      file.println("");
-
-      file.print("日付");
+      file.print("day");
 
       file.print(",");
-      file.print("来店数");
+      file.print("raikyaku-suu");
+
       file.print(",");
-      file.print("選択回数");
+      file.print("senntaku-kaisuu");
       file.print(",");
       file.println("");
 
@@ -484,36 +527,21 @@ class Customer {
       file.print(",");
       file.print(",");
 
-      file.print("買わない");
+      file.print("kawanai");
 
       for (int i=14; i>=sales_deadline; i--) {
         file.print(",");
-        file.print(i + "日");
+        file.print(i + "niti");
       }
 
       for (int i=14; i>=sales_deadline; i--) {
         file.print(",");
-        file.print(kakaku + "円");
+        file.print(kakaku + "enn");
         kakaku -= 5;
       }
       file.print(",");
 
-
       file.println("");
-      file.close();
-    }
-    catch (IOException e) {
-      println(e);
-      e.printStackTrace();
-    }
-  }
-
-
-
-  void addfile() {
-    try {
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\customer\\customer_"+freshness+"_"+money+".csv"), true));
-
 
       for (int i=0; i<customer_list.size(); i++) {
         for (int j=0; j<customer_list.get(i).size(); j++) {
@@ -534,71 +562,55 @@ class Customer {
   }
 
 
-  void customer_newlist() {
-    try {
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\customer\\customer_fresh"+freshness+"_price"+money+".csv")));
-      file.println("");
-
-      file.print("[CUSTOMER]");
-      file.println("");
-
-      file.close();
-    }
-    catch (IOException e) {
-      println(e);
-      e.printStackTrace();
-    }
-  }
 
 
+  //  void customer_addlist(Supershelf supershelf) {
+  //    try {
+  //      PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/customer/customer_fresh"+freshness+"_price"+money+".csv"), true));
+  //      file.println("");
 
-  void customer_addlist(Supershelf supershelf) {
-    try {
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\customer\\customer_fresh"+freshness+"_price"+money+".csv"), true));
-      file.println("");
+  //      file.print("date: " + day);
+  //      file.println("");
+  //      file.print("customer: " + customertotal);
+  //      file.println("");
+  //      file.print("notbuy: " + this.notbuy);
+  //      file.println("");
+  //      file.print("inventory: " + supershelf.inventories());
+  //      file.println("");
 
-      file.print("date: " + day);
-      file.println("");
-      file.print("customer: " + customertotal);
-      file.println("");
-      file.print("notbuy: " + this.notbuy);
-      file.println("");
-      file.print("inventory: " + supershelf.inventories());
-      file.println("");
+  //      if (buy.size() == 0) {
+  //        file.print(",");
+  //        file.println("");
+  //      } else {
+  //        file.print("number");
+  //        file.print(",");
+  //        for (int i=0; i<buy.get(buy.size()-1).size(); i++) {
+  //          file.print(i+1);
+  //          file.print(",");
+  //        }
+  //        file.println("");
+  //        file.print(",");
 
-      if (buy.size() == 0) {
-        file.print(",");
-        file.println("");
-      } else {
-        file.print("number");
-        file.print(",");
-        for (int i=0; i<buy.get(buy.size()-1).size(); i++) {
-          file.print(i+1);
-          file.print(",");
-        }
-        file.println("");
-        file.print(",");
+  //        for (int i=0; i<buy.get(buy.size()-1).size(); i++) {
+  //          file.print(buy.get(buy.size()-1).get(i).expiration);
+  //          file.print(",");
+  //        }
+  //        file.println("");
+  //        file.print(",");
 
-        for (int i=0; i<buy.get(buy.size()-1).size(); i++) {
-          file.print(buy.get(buy.size()-1).get(i).expiration);
-          file.print(",");
-        }
-        file.println("");
-        file.print(",");
-
-        for (int i=0; i<buy.get(buy.size()-1).size(); i++) {
-          file.print(buy.get(buy.size()-1).get(i).price);
-          file.print(",");
-        }
-        file.println("");
-      }
+  //        for (int i=0; i<buy.get(buy.size()-1).size(); i++) {
+  //          file.print(buy.get(buy.size()-1).get(i).price);
+  //          file.print(",");
+  //        }
+  //        file.println("");
+  //      }
 
 
-      file.close();
-    }
-    catch (IOException e) {
-      println(e);
-      e.printStackTrace();
-    }
-  }
+  //      file.close();
+  //    }
+  //    catch (IOException e) {
+  //      println(e);
+  //      e.printStackTrace();
+  //    }
+  //  }
 }

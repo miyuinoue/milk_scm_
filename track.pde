@@ -1,7 +1,7 @@
 class Track extends ArrayList <Milkstock> {
 
-  ArrayList<Track> maker_track = new ArrayList<Track>(); //trackの複数形tracksのクラスをつくる
-  ArrayList<Track> super_track = new ArrayList<Track>(); 
+//  ArrayList<Track> maker_track = new ArrayList<Track>(); //trackの複数形tracksのクラスをつくる
+//  ArrayList<Track> super_track = new ArrayList<Track>(); 
   Track() {
   }
 
@@ -118,57 +118,4 @@ class Track extends ArrayList <Milkstock> {
     }
   }
 
-
-
-
-  void super_list() {
-    //println(day);
-    try {
-      PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\ondlab\\milk_scm_\\supertrack\\"+"supertrack"+day+".csv")));
-      file.println("");
-
-      file.print("[SUPERTRACK]");
-      file.println("");
-
-      file.print("date: " + day);
-      file.println("");
-
-      file.print("number");
-      file.print(",");
-      file.print("expiration");
-      file.print(",");
-      file.print("seisanbi");
-      file.print(",");
-      file.print("size");
-      file.println(" ");
-
-      for (int i=0; i < super_track.size(); i++) {
-        for (int j=0; j < 10; j++) {
-          file.print(i+1);
-          file.print(",");
-          //file.print("makertrack");
-
-          if (super_track.get(i).get(j).size() == 0) {
-            file.print(" ");
-            file.print(",");
-            file.print(" ");
-          } else {
-            file.print(super_track.get(i).get(j).exp_search());
-            file.print(",");
-            file.print(super_track.get(i).get(j).get(0).production_date);
-          }
-
-          file.print(",");
-          file.print(super_track.get(i).get(j).size());
-          file.println("");
-        }
-      }
-
-      file.close();
-    }
-    catch (IOException e) {
-      println(e);
-      e.printStackTrace();
-    }
-  }
 }
