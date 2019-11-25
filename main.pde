@@ -95,7 +95,7 @@ void draw() {
 
 
     //fresh効用
-    for (int b=0; b<=10; b+=10) {
+    for (int b=10; b<=10; b+=10) {
       freshness = b;
 
       maker_waste = new ArrayList<Integer>();
@@ -103,8 +103,8 @@ void draw() {
       total_waste = new ArrayList<Integer>();
 
       //money効用
-      for (int c=0; c<=10; c+=10) {
-        //  //println("fresh:" + freshness + "   money:" + money);
+      for (int c=10; c<=10; c+=10) {
+        //println("fresh:" + freshness + "   money:" + money);
         money = c;
 
         reset();
@@ -113,8 +113,6 @@ void draw() {
         maker_waste.add(maker.maker_totalwaste);
         super_waste.add(superstock.stock_totalwaste + supershelf.shelf_totalwaste);
         total_waste.add(maker.maker_totalwaste + superstock.stock_totalwaste + supershelf.shelf_totalwaste);
-
-        //println(millis()-ms);
       }
       maker_wastes.add(maker_waste);
       super_wastes.add(super_waste);
@@ -155,7 +153,10 @@ void main_scm() {
       }
 
       this.restocking = shelf_capacity - supershelf.inventories();//補充量
-      //if (this.restocking > 50)println(this.restocking);
+      //if (supershelf.inventories() >50)println("inv" + supershelf.inventories());
+
+
+      //if (this.restocking < 50)println(this.restocking);
       superstock.stocking(supertracks, this.restocking);//（shelfの最大在庫量 - shelfの現在の在庫量）をトラックに積む
       supershelf.restock(supertracks);//トラックに入れた牛乳をstockからshelfに品出しする
 
@@ -499,7 +500,7 @@ void totalwaste_file() {
     PrintWriter file = new PrintWriter(new FileWriter(new File("C:\\Users\\miumi\\iCloudDrive\\Desktop\\milk_scm\\scm_"+ month() + "_" + day() +"\\waste\\total_waste.csv"), true));
     //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/miyuinoue/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/total_waste.csv"), true));
     //PrintWriter file = new PrintWriter(new FileWriter(new File("/Users/inouemiyu/Desktop/milk_scm/scm_" + month() + "_" + day() +"/waste/total_waste.csv"), true));
-    
+
     file.print(timetotal);
     file.print(",");
 

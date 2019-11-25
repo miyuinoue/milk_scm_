@@ -127,6 +127,7 @@ class Maker extends ArrayList <Milkstock> {
     int carry;
     for (int i=stock_search(); i<this.size(); i++) {
       carry= min(o, this.get(i).size());
+      
       o -= carry;
 
       for (int j=0; j<carry; j++) {
@@ -137,6 +138,14 @@ class Maker extends ArrayList <Milkstock> {
     }
 
     maker_loss = o;
+    
+        
+    //int num=0;
+    //for(int i=0; i<makertracks.get(makertracks.size()-1).size(); i++){
+    //  num += makertracks.get(makertracks.size()-1).get(i).size();
+    //}
+    ////if(maker_loss == 0 && num != order)
+    //println("makernum"+num);
   
     this.total_num += this.shipment_size;
   }
@@ -153,6 +162,7 @@ class Maker extends ArrayList <Milkstock> {
   }
 
   int stock_search() {
+    this.getexp = 0;
     for (int i=this.size()-1; i>=0; i--) {
       if (this.get(i).size() == 0)continue;
 

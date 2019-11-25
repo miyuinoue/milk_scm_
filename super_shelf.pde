@@ -111,12 +111,14 @@ class Supershelf extends ArrayList <Milkstock> {
   int inventories() {
     int inv = 0;
     int getnum = stock_search();
+    //println(day + "*" +this.get(getnum).get(0).expiration);
 
     for (int i=getnum; i<this.size(); i++) {
+
       inv += this.get(i).size();
     }
-    
-    if(inv>50)println(freshness+ ":" + money +"   day"+ day+ "    inv"+ inv);
+
+    //if(inv>50)println(freshness+ ":" + money +"   day"+ day+ "    inv"+ inv);
 
     return inv;
   }
@@ -124,33 +126,29 @@ class Supershelf extends ArrayList <Milkstock> {
 
 
   //前期に足らなかった牛乳を補充する
-  void restock(SuperTracks supertracks) {
+  void restock(SuperTracks supertracks) {    
     if (supertracks.size() == 0)return;
 
     this.restock = 0;//品出しした量
-    noexpiration = true;
+
     int i = supertracks.size()-1;
 
     for (int j=0; j<supertracks.get(i).size(); j++) {
+      noexpiration = true;
       if (supertracks.get(i).get(j).size() == 0)continue;
 
-
-
-      //int e = supertracks.get(i).get(j).exp_search();
-      //if(e == -1)continue;//エラー
 
       //納品された牛乳の賞味期限日数と同じ牛乳がstockにある場合
       int e = supertracks.get(i).get(j).exp_search();
 
-      if (this.size() != 0) {
-        for (int l=0; l<this.size(); l++) {
+      for (int l=0; l<this.size(); l++) {
 
-          if (e == this.get(l).exp_search()) {
-            noexpiration = false;
-            for (int m=0; m<supertracks.get(i).get(j).size(); m++) {
-              this.get(l).add(supertracks.get(i).get(j).get(m));
-              this.restock++;
-            }
+
+        if (e == this.get(l).exp_search()) {
+          noexpiration = false;
+          for (int m=0; m<supertracks.get(i).get(j).size(); m++) {
+            this.get(l).add(supertracks.get(i).get(j).get(m));
+            this.restock++;
           }
         }
       }
@@ -164,7 +162,8 @@ class Supershelf extends ArrayList <Milkstock> {
         }
       }
     }
-    
+
+
     //if(this.restock >50)println(this.restock);
   }
 
@@ -242,6 +241,7 @@ class Supershelf extends ArrayList <Milkstock> {
 
       if (this.get(i).exp_search() < sales_deadline) {
         this.getexp = i+1;
+        //println(getexp);
         break;
       }
     }
@@ -287,5 +287,4 @@ class Supershelf extends ArrayList <Milkstock> {
 
     shelf_list.add(list);
   }
-
 }

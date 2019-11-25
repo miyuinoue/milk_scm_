@@ -1,7 +1,5 @@
 class Track extends ArrayList <Milkstock> {
 
-//  ArrayList<Track> maker_track = new ArrayList<Track>(); //trackの複数形tracksのクラスをつくる
-//  ArrayList<Track> super_track = new ArrayList<Track>(); 
   Track() {
   }
 
@@ -14,9 +12,19 @@ class Track extends ArrayList <Milkstock> {
 
   void maker_addtrack(Milk milk) {
     milk.movingday_maker_super = day;
+    //for (int i=0; i<buy.get(buy.size()-1).size(); i++) {  
+    //  if (1 <= buy.get(buy.size()-1).get(i).expiration && buy.get(buy.size()-1).get(i).expiration <=14) {
+
+    //    int num = 14 - buy.get(buy.size()-1).get(i).expiration;
+    //    select_fre.set(num, select_fre.get(num)+1);
+    //  } else if (buy.get(buy.size()-1).get(i).expiration == 100) {
+    //    this.notbuy++;
+    //  }
+    //}
 
     //this.get(14 - milk.expiration).add(milk);
     switch(milk.expiration) {
+
 
     case 14:
 
@@ -117,5 +125,4 @@ class Track extends ArrayList <Milkstock> {
       break;
     }
   }
-
 }

@@ -48,10 +48,18 @@ class Superstock extends ArrayList <Milkstock> {
     if (makertracks.size() == 0)return;
 
     delivery = 0;
-    noexpiration = true;
+    //int num = 0;
+    //for (int i=0; i<makertracks.get(makertracks.size()-1).size(); i++) {
+    //  num += makertracks.get(makertracks.size()-1).get(i).size();
+    //}
+    //println("stocknum "+ num);
+
     int i = makertracks.size()-1;
 
+
+
     for (int j=0; j<makertracks.get(i).size(); j++) {
+      noexpiration = true;
       if (makertracks.get(i).get(j).size() == 0)continue;
 
       int e = makertracks.get(i).get(j).exp_search();
@@ -80,6 +88,10 @@ class Superstock extends ArrayList <Milkstock> {
         }
       }
     }
+    
+    //println(delivery);
+    //    println("");
+
   }
 
 
@@ -87,23 +99,30 @@ class Superstock extends ArrayList <Milkstock> {
   //賞味期限が古い商品から順に品出しstockingする
   //古い順に、納品できるかの判定を行い、牛乳一つずつtrackのboxに入れる
   void stocking(SuperTracks supertracks, int s) {
+    if(s<0){
+      println("s   "+s);
+      println("");
+      //return;
+    }
     int stock_num = 0;
     supertracks.add(new Track(14-sales_deadline+1));
 
     int carry;
     for (int i=sales_deadline_search(); i<this.size(); i++) {
-      carry= min(s, this.get(i).size());
-      s-=carry;
+      carry = min(s, this.get(i).size());
+      s -= carry;
 
       for (int j=0; j<carry; j++) {
         supertracks.addtrack(this.get(i).remove(0));
         stock_num++;
       }
-      if (s<=0) break;
+      if (s <= 0) break;
     }
 
     stock_loss = s;
-    
+
+    //println("stock: "+ stock_num + "   
+
     stock.append(stock_num);
     this.total_num += stock_num;
   }
